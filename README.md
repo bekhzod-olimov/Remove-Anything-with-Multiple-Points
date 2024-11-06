@@ -119,6 +119,9 @@ python remove_anything.py \
 ```
 
 You can change `--coords_type key_in` to `--coords_type click` if your machine has a display device. If `click` is set, after running the above command, the image will be displayed. 
+
 (1) Use *left-click* to record the coordinates of the positive class;
+
 (2) Use *right-click* for negative class; 
+
 (3) Use *middle-click* to finish the selection.
