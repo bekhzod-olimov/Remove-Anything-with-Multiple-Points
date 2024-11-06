@@ -106,7 +106,7 @@ python remove_anything.py \
 ```
 
 Specify an image and choose the objects you want to remove. The Remove Anything will remove the object at several points.
-
+```bash
 python remove_anything.py \
     --input_img path/to/your/image \
     --coords_type click \
