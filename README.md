@@ -90,13 +90,13 @@ For the MobileSAM project, please refer to [MobileSAM](https://github.com/Chaoni
 bash script/remove_anything.sh
 
 ```
-Specify an image and a point, and Remove Anything will remove the object at the point.
+Specify an image and a point, and Remove Anything will remove the object at several points.
 ```bash
 python remove_anything.py \
-    --input_img ./example/remove-anything/dog.jpg \
+    --input_img path/to/your/image \
     --coords_type key_in \
-    --point_coords 200 450 \
-    --point_labels 1 \
+    --point_coords "[[580, 250], [580, 50], [700, 350]]" \
+    --point_labels "[1, 1, 1]" \
     --dilate_kernel_size 15 \
     --output_dir ./results \
     --sam_model_type "vit_h" \
@@ -104,6 +104,20 @@ python remove_anything.py \
     --lama_config ./lama/configs/prediction/default.yaml \
     --lama_ckpt ./pretrained_models/big-lama
 ```
+
+Specify an image and choose the objects you want to remove. The Remove Anything will remove the object at several points.
+
+python remove_anything.py \
+    --input_img path/to/your/image \
+    --coords_type click \
+    --dilate_kernel_size 15 \
+    --output_dir ./results \
+    --sam_model_type "vit_h" \
+    --sam_ckpt ./pretrained_models/sam_vit_h_4b8939.pth \
+    --lama_config ./lama/configs/prediction/default.yaml \
+    --lama_ckpt ./pretrained_models/big-lama
+```
+
 You can change `--coords_type key_in` to `--coords_type click` if your machine has a display device. If `click` is set, after running the above command, the image will be displayed. (1) Use *left-click* to record the coordinates of the click. It supports modifying points, and only last point coordinates are recorded. (2) Use *right-click* to finish the selection.
 
 ### Demo
