@@ -1,20 +1,16 @@
 import warnings
 warnings.filterwarnings('ignore')
-import sys, ast
+import sys
 import argparse
 import numpy as np
 from pathlib import Path
 from matplotlib import pyplot as plt
 from lama_inpaint import inpaint_img_with_lama
 from utils import load_img_to_array, save_array_to_img, dilate_mask, \
-    show_mask, show_points, get_clicked_point
+    show_mask, show_points, get_clicked_point, parse_coords
 
 from segment_anything import sam_model_registry, SamPredictor
 
-
-def parse_coords(string):
-    # Use ast.literal_eval to safely evaluate the string as a list of lists
-    return ast.literal_eval(string)
 
 def setup_args(parser):
     parser.add_argument(

@@ -1,8 +1,7 @@
-import cv2
+import cv2, ast
 import numpy as np
 from PIL import Image
-from typing import Any, Dict, List
-
+from typing import List
 
 def load_img_to_array(img_p):
     img = Image.open(img_p)
@@ -10,10 +9,8 @@ def load_img_to_array(img_p):
         img = img.convert("RGB")
     return np.array(img)
 
-
 def save_array_to_img(img_arr, img_p):
     Image.fromarray(img_arr.astype(np.uint8)).save(img_p)
-
 
 def dilate_mask(mask, dilate_factor=15):
     mask = mask.astype(np.uint8)
@@ -54,6 +51,10 @@ def show_points(ax, coords: List[List[float]], labels: List[int], size=375):
         points = coords[labels == label_value]
         ax.scatter(points[:, 0], points[:, 1], color=color, marker='*',
                    s=size, edgecolor='white', linewidth=1.25)
+
+def parse_coords(string):
+    # Use ast.literal_eval to safely evaluate the string as a list of lists
+    return ast.literal_eval(string)
 
 def get_clicked_point(img_path):
     # Load the image
