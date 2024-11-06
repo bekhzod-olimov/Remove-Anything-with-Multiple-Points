@@ -27,11 +27,11 @@ def setup_args(parser):
         help="The way to select coords",
     )
     parser.add_argument(
-        "--point_coords", type=parse_coords, nargs='*', required=True,
+        "--point_coords", type=parse_coords, nargs='*',
         help="The coordinate of the point prompt, [coord_W coord_H].",
     )
     parser.add_argument(
-        "--point_labels", type=parse_coords, nargs='*', required=True,
+        "--point_labels", type=parse_coords, nargs='*', 
         help="The labels of the point prompt, 1 or 0.",
     )
     parser.add_argument(
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     assert args.coords_type in ["click", "key_in"]  
 
-    input_points, input_labels = np.array(args.point_coords)[0], np.array(args.point_labels)[0] if args.coords_type == "key_in" else get_clicked_point(args.input_img)
+    input_points, input_labels = get_clicked_point(args.input_img) if args.coords_type == "click" else (np.array(args.point_coords)[0], np.array(args.point_labels)[0])
     
     img = load_img_to_array(args.input_img)
 
