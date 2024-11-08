@@ -4,6 +4,13 @@ from PIL import Image
 from typing import List
 from glob import glob
 from streamlit_free_text_select import st_free_text_select
+from segment_anything import sam_model_registry, SamPredictor
+from pathlib import Path
+from lama_inpaint import inpaint_img_with_lama
+from matplotlib import pyplot as plt
+import streamlit as st
+
+st.set_page_config(layout='wide')
 
 def load_img_to_array(img_p):
     img = Image.open(img_p)
@@ -60,7 +67,7 @@ def parse_coords(string):
 
 def get_clicked_point(img_path):
     # Load the image
-    img = cv2.imread(img_path)
+    img = cv2.imdecode(np.frombuffer(img_path.read(), np.uint8), cv2.IMREAD_COLOR)
     cv2.namedWindow("image")
     cv2.imshow("image", img)
 
@@ -124,3 +131,34 @@ def choose(option, label):
             disabled=False,
             delay=300,
             label_visibility="visible")
+
+def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir, lama_config, lama_ckpt, dks = None):
+        print("Building SAM model...")
+
+        # Initialize SAM model using the checkpoint
+        sam = sam_model_registry["vit_h"](checkpoint=f"{ckpts_path}").to(device=device)
+        predictor = SamPredictor(sam)
+        print("The SAM segmentation model is successfully created!\n")
+
+        image = np.array(Image.open(im_path).convert("RGB"))
+        # image = load_img_to_array(im_path)
+
+        # Preprocess image for SAM
+        predictor.set_image(image)
+
+        # Get segmentation masks
+        masks, _, _ = predictor.predict(point_coords=input_points, point_labels=input_labels, multimask_output=True)
+        print("The segmentation masks using SAM are obtained!\n")
+
+        masks = masks.astype(np.uint8) * 255
+
+        # Dilate masks to avoid unmasked edge effect if the kernel size is specified
+        if dks: masks = [dilate_mask(mask, dks) for mask in masks]
+
+        # Save the segmentation masks
+        print("Visualizing the segmentation masks...")
+        inpaintings = [inpaint_img_with_lama(image, mask, lama_config, lama_ckpt, device=device) for mask in masks]
+
+        return masks, inpaintings
+
+def write(text): return st.markdown(f'<h1 style="text-align: center;">{text}</h1>', unsafe_allow_html=True) if isinstance(text, str) else st.markdown(f'<h1 style="font-size:100px; text-align: center; color: red; ">{text}</h1>', unsafe_allow_html=True)

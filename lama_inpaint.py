@@ -20,9 +20,6 @@ from saicinpainting.evaluation.utils import move_to_device
 from saicinpainting.training.trainers import load_checkpoint
 from saicinpainting.evaluation.data import pad_tensor_to_modulo
 
-from utils import load_img_to_array, save_array_to_img
-
-
 @torch.no_grad()
 def inpaint_img_with_lama(
         img: np.ndarray,
@@ -39,7 +36,7 @@ def inpaint_img_with_lama(
     mask = torch.from_numpy(mask).float()
     predict_config = OmegaConf.load(config_p)
     predict_config.model.path = ckpt_p
-    # device = torch.device(predict_config.device)
+    
     device = torch.device(device)
 
     train_config_path = os.path.join(
@@ -81,6 +78,7 @@ def inpaint_img_with_lama(
     cur_res = np.clip(cur_res * 255, 0, 255).astype('uint8')
     return cur_res
 
+def array_im(im_path): return np.array(Image.open(im_path).convert("RGB"))
 
 def build_lama_model(        
         config_p: str,
@@ -191,10 +189,11 @@ if __name__ == "__main__":
     out_dir = Path(args.output_dir) / img_stem
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    img = load_img_to_array(args.input_img)
+    img = array_im(args.input_img)
+
     for mask_p in mask_ps:
-        mask = load_img_to_array(mask_p)
+        mask = array_im(mask_p)
         img_inpainted_p = out_dir / f"inpainted_with_{Path(mask_p).name}"
         img_inpainted = inpaint_img_with_lama(
             img, mask, args.lama_config, args.lama_ckpt, device=device)
-        save_array_to_img(img_inpainted, img_inpainted_p)
+        Image.fromarray(img_inpainted.astype(np.uint8)).save(img_inpainted_p)
