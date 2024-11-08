@@ -67,12 +67,11 @@ def parse_coords(string):
 
 def get_clicked_point(img_path):
     # Load the image
-    img = cv2.imdecode(np.frombuffer(img_path.read(), np.uint8), cv2.IMREAD_COLOR)
-    cv2.namedWindow("image")
-    cv2.imshow("image", img)
+    img = cv2.cvtColor(load_img_to_array(img_path), cv2.COLOR_BGR2RGB)
+    cv2.namedWindow("image"); cv2.imshow("image", img)
 
-    pos_points, neg_points = [], []  # Lists to store points
-    pos_lbls, neg_lbls = [], []      # Lists to store labels
+    # Lists to store points and labels
+    pos_points, pos_lbls, neg_points, neg_lbls = [], [], [], []  
 
     # This will control the loop
     keep_looping = [True]
