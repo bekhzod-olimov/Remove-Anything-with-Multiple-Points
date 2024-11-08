@@ -6,26 +6,19 @@ import warnings
 
 from PIL import Image
 from matplotlib import pyplot as plt
-from utils import get_ims_captions, choose, inpaint, write, get_clicked_point, parse_coords
+from utils import get_ims_captions, choose, inpaint, write, get_clicked_point, parse_coords, load_img_to_array
 from streamlit_image_select import image_select
-from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 warnings.filterwarnings('ignore')
 np.random.seed(seed=2024)
 
-
 def run(args):
     # Streamlit UI for image selection
     st.header("이미지를 업로드하거나 이미지를 선택해주세요:")
-    # get_im = st.file_uploader('1', label_visibility='collapsed')
-    # ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
-
-    # # Handle image loading
-    # im_path = get_im.name if get_im else streamlit_image_select.image_select(label="", images=ims_lst, captions=image_captions)
-    # print(im_path)
-    # input_points, input_labels = get_clicked_point(im_path)
 
     get_im = st.file_uploader('1', label_visibility='collapsed')
+    ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
+    im_path = None
 
     # Use the selected or uploaded image to get points and labels
     if get_im:
@@ -43,8 +36,29 @@ def run(args):
         for idx, col in enumerate(cols):
             with col: write(f"Inpainting#{idx}:"); st.image(inpaintings[idx])
         
-    else: st.header("이미지를 업로드 해주세요!") 
-    
+    elif get_im == None: 
+        image_select(label="이미지 목록", images=ims_lst, captions=image_captions)
+        choice = choose(option = image_captions, label = "선택 가능한 이미지 목록")
+
+        if choice:        
+            
+            input_points, input_labels = get_clicked_point(im_path)          
+            
+            masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
+                    input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size)
+
+            cols = st.columns(len(masks))
+
+            for idx, col in enumerate(cols):
+                with col: write(f"Mask#{idx}:"); st.image(masks[idx])
+
+            cols = st.columns(len(masks))
+
+            for idx, col in enumerate(cols):
+                with col: write(f"Inpainting#{idx}:"); st.image(inpaintings[idx])
+        cv2.destroyAllWindows()
+
+    elif (get_im == None) and (im_path == None): st.header("이미지를 업로드 해주세요!") 
 
 if __name__ == "__main__":
     # Initialize argument parser

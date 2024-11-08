@@ -51,7 +51,6 @@ def show_mask(ax, mask: np.ndarray, random_color=False):
     mask_img = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
     ax.imshow(mask_img)
 
-
 def show_points(ax, coords: List[List[float]], labels: List[int], size=375):
     coords = np.array(coords)
     labels = np.array(labels)
