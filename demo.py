@@ -3,14 +3,13 @@ import argparse
 import numpy as np
 import streamlit as st
 import warnings
-
+warnings.filterwarnings('ignore')
+np.random.seed(seed=2024)
 from PIL import Image
 from matplotlib import pyplot as plt
 from utils import get_ims_captions, choose, inpaint, write, get_clicked_point, parse_coords, load_img_to_array
 from streamlit_image_select import image_select
 
-warnings.filterwarnings('ignore')
-np.random.seed(seed=2024)
 
 def run(args):
     # Streamlit UI for image selection
