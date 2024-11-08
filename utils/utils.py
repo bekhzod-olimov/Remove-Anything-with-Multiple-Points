@@ -2,6 +2,8 @@ import cv2, ast
 import numpy as np
 from PIL import Image
 from typing import List
+from glob import glob
+from streamlit_free_text_select import st_free_text_select
 
 def load_img_to_array(img_p):
     img = Image.open(img_p)
@@ -102,3 +104,23 @@ def get_clicked_point(img_path):
 
     # Return the points and labels
     return np.array(pos_points + neg_points), np.array(pos_lbls + neg_lbls)
+
+def get_ims_captions(path, n_ims):
+
+    im_paths = glob(f"{path}/*/*.jpg")
+    np.random.shuffle(im_paths)
+    ims = im_paths[:n_ims]
+    captions = [f"Image #{i+1}" for i in range(len(ims))]
+
+    return ims, captions
+
+def choose(option, label):
+
+    return st_free_text_select(
+            label=label,
+            options=option,
+            index=None,
+            placeholder="선택을 위해 클릭해주세요",
+            disabled=False,
+            delay=300,
+            label_visibility="visible")
