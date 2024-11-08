@@ -107,7 +107,7 @@ def get_clicked_point(img_path):
 
 def get_ims_captions(path, n_ims):
 
-    im_paths = glob(f"{path}/*/*.jpg")
+    im_paths = glob(f"{path}/*.jpg")
     np.random.shuffle(im_paths)
     ims = im_paths[:n_ims]
     captions = [f"Image #{i+1}" for i in range(len(ims))]
