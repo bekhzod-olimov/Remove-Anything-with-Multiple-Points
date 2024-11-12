@@ -26,7 +26,7 @@ def run(args):
     if get_im:
         input_points, input_labels = get_clicked_point(get_im)          
         masks, inpaintings = inpaint(get_im, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
-                input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size)
+                input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size, lang = args.lang)
 
         cols = st.columns(len(masks))
 
@@ -55,7 +55,7 @@ def run(args):
             input_points, input_labels = get_clicked_point(im_path)          
             
             masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
-                    input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size)
+                    input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size, lang = args.lang)
             
 
             cols = st.columns(len(masks))

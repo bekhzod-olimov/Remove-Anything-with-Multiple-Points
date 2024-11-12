@@ -132,16 +132,16 @@ def choose(option, label):
             delay=300,
             label_visibility="visible")
 
-def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir, lama_config, lama_ckpt, dks = None):
-        st.header("Building SAM model...!") 
+def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir, lama_config, lama_ckpt, lang, dks = None):
         
-        print("Building SAM model...")
+        if   lang == "en": st.header("Building SAM model...!") 
+        elif lang == "ko": st.header("SAM 모델을 구축하는 중입니다...")     
 
         # Initialize SAM model using the checkpoint
         sam = sam_model_registry["vit_h"](checkpoint=f"{ckpts_path}").to(device=device)
         predictor = SamPredictor(sam)
-        print("The SAM segmentation model is successfully created!\n")
-        st.header("The SAM segmentation model is successfully created!") 
+        if   lang == "en": st.header("The SAM segmentation model is successfully created!") 
+        elif lang == "ko": st.header("SAM 세그멘테이션 모델이 성공적으로 생성되었습니다!") 
 
         image = np.array(Image.open(im_path).convert("RGB"))
         # image = load_img_to_array(im_path)
@@ -151,8 +151,8 @@ def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir,
 
         # Get segmentation masks
         masks, _, _ = predictor.predict(point_coords=input_points, point_labels=input_labels, multimask_output=True)
-        print("The segmentation masks using SAM are obtained!\n")
-        st.header("The segmentation masks using SAM are obtained!\n")
+        if   lang == "en": st.header("The segmentation masks using SAM are obtained!\n") 
+        elif lang == "ko": st.header("SAM을 사용하여 세그멘테이션 마스크가 생성되었습니다!") 
 
         masks = masks.astype(np.uint8) * 255
 
@@ -160,8 +160,9 @@ def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir,
         if dks: masks = [dilate_mask(mask, dks) for mask in masks]
 
         # Save the segmentation masks
-        print("Visualizing the segmentation masks...")
-        st.header("Visualizing the segmentation masks...")            
+        if   lang == "en": st.header("Visualizing the segmentation masks...") 
+        elif lang == "ko": st.header("세그멘테이션 마스크를 시각화하는 중입니다...") 
+                 
         inpaintings = [inpaint_img_with_lama(image, mask, lama_config, lama_ckpt, device=device) for mask in masks]
 
         return masks, inpaintings
