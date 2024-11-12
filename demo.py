@@ -24,6 +24,7 @@ def run(args):
     type_name = choose(option = demo_types, label = label, placeholder = placeholder)
 
     if type_name in ["my_image", "본인 이미지"]:
+
         if   args.lang == "en": im_path_lbl, input_points_lbl,  input_labels_lbl = "Please type image path:", "Please type input points:", "Please type input labels:"
         elif args.lang == "ko": im_path_lbl, input_points_lbl,  input_labels_lbl = "이미지 경로를 입력해 주세요:", "입력 포인트를 입력해 주세요:", "입력 레이블을 입력해 주세요:"
 
@@ -34,6 +35,7 @@ def run(args):
         if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
 
     elif type_name in ["existing_image", "리스트에 있는 이미지"]:
+
         if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
         elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
 
@@ -44,11 +46,10 @@ def run(args):
         ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
 
         # Use the selected or uploaded image to get points and labels
-        if get_im:
-            input_points, input_labels = get_clicked_point(get_im)          
+        if get_im: input_points, input_labels = get_clicked_point(get_im)          
             
         elif (get_im == None) and (im_path == None): 
-            # print("get_im == None")
+            
             select_label = "Images List" if args.lang == "en" else "이미지 목록"
             choice_label = "Available Images" if args.lang == "en" else "선택 가능한 이미지 목록"
             placeholder  = "Please click to choose" if args.lang == "en" else "선택을 위해 클릭해주세요"
@@ -82,8 +83,9 @@ def run(args):
         elif args.lang == "ko": st.header("터미널에서 streamlit 스크립트를 다시 실행해 주세요!") 
 
 if __name__ == "__main__":
+    
     # Initialize argument parser
-    parser = argparse.ArgumentParser(description="Image Inpainting Demo")
+    parser = argparse.ArgumentParser(description = "SAM Semantic Segmentation & Inpainting Demo")
 
     # Add arguments
     parser.add_argument("-r", "--root", type=str, default="example/remove-anything", help="Root folder for test images")
