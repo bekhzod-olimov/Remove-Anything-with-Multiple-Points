@@ -33,9 +33,13 @@ def run(args):
         label_visibility="visible")
 
     if type_name in ["my_image", "본인 이미지"]:
-        im_path       = st.text_input(label = "Please type image path",   value = None)
-        input_points  = st.text_input(label = "Please type input points", value = None)
-        input_labels  = st.text_input(label = "Please type input labels", value = None)
+        if   args.lang == "en": im_path_lbl, input_points_lbl,  input_labels_lbl = "Please type image path:", "Please type input points:", "Please type input labels:"
+        elif args.lang == "ko": im_path_lbl, input_points_lbl,  input_labels_lbl = "이미지 경로를 입력해 주세요:", "입력 포인트를 입력해 주세요:", "입력 레이블을 입력해 주세요:"
+
+        im_path       = st.text_input(label = im_path_lbl,      value = None)
+        input_points  = st.text_input(label = input_points_lbl, value = None)
+        input_labels  = st.text_input(label = input_labels_lbl, value = None)
+        
         if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
 
     elif type_name in ["existing_image", "리스트에 있는 이미지"]:
