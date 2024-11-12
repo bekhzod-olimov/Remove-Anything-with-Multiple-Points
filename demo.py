@@ -1,8 +1,7 @@
-import torch
 import argparse
 import numpy as np
 import streamlit as st
-import warnings, sys, os
+import warnings
 warnings.filterwarnings('ignore')
 np.random.seed(seed=2024)
 from PIL import Image
