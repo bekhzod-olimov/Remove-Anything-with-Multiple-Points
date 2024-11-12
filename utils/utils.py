@@ -13,6 +13,7 @@ import streamlit as st
 st.set_page_config(layout='wide')
 
 def load_img_to_array(img_p):
+    print(img_p)
     img = Image.open(img_p)
     if img.mode == "RGBA":
         img = img.convert("RGB")
@@ -110,10 +111,11 @@ def get_clicked_point(img_path):
     # Return the points and labels
     return np.array(pos_points + neg_points), np.array(pos_lbls + neg_lbls)
 
+
 def get_ims_captions(path, n_ims):
 
-    im_paths = glob(f"{path}/*.jpg")
-    np.random.shuffle(im_paths)
+    im_paths = sorted(glob(f"{path}/*.jpg"))
+    # np.random.shuffle(im_paths)
     ims = im_paths[:n_ims]
     captions = [f"Image #{i+1}" for i in range(len(ims))]
 

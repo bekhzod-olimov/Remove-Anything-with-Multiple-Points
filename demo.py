@@ -2,14 +2,13 @@ import cv2
 import argparse
 import numpy as np
 import streamlit as st
-import warnings
+import warnings, sys, os
 warnings.filterwarnings('ignore')
 np.random.seed(seed=2024)
 from PIL import Image
 from matplotlib import pyplot as plt
 from utils import get_ims_captions, choose, inpaint, write, get_clicked_point, parse_coords, load_img_to_array
 from streamlit_image_select import image_select
-
 
 def run(args):
     # Streamlit UI for image selection
@@ -21,6 +20,7 @@ def run(args):
 
     # Use the selected or uploaded image to get points and labels
     if get_im:
+        print("get_im")
         input_points, input_labels = get_clicked_point(get_im)          
         masks, inpaintings = inpaint(get_im, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
                 input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size)
@@ -35,12 +35,15 @@ def run(args):
         for idx, col in enumerate(cols):
             with col: write(f"Inpainting#{idx}:"); st.image(inpaintings[idx])
         
-    elif get_im == None: 
+    elif (get_im == None) and (im_path == None): 
+        # print("get_im == None")
         image_select(label="이미지 목록", images=ims_lst, captions=image_captions)
         choice = choose(option = image_captions, label = "선택 가능한 이미지 목록")
+        
+        if choice:  
+            # print("if choice")
+            im_path = ims_lst[int(choice.split("#")[-1])-1]
 
-        if choice:        
-            
             input_points, input_labels = get_clicked_point(im_path)          
             
             masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
@@ -49,13 +52,12 @@ def run(args):
             cols = st.columns(len(masks))
 
             for idx, col in enumerate(cols):
-                with col: write(f"Mask#{idx}:"); st.image(masks[idx])
+                with col: write(f"Mask#{idx+1}:"); st.image(masks[idx])
 
             cols = st.columns(len(masks))
 
             for idx, col in enumerate(cols):
-                with col: write(f"Inpainting#{idx}:"); st.image(inpaintings[idx])
-        cv2.destroyAllWindows()
+                with col: write(f"Inpainting#{idx+1}:"); st.image(inpaintings[idx]) 
 
     elif (get_im == None) and (im_path == None): st.header("이미지를 업로드 해주세요!") 
 
