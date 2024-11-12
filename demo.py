@@ -1,4 +1,4 @@
-import cv2
+import torch
 import argparse
 import numpy as np
 import streamlit as st
@@ -18,25 +18,15 @@ def run(args):
     if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
     elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
 
-    get_im = st.file_uploader('1', label_visibility='collapsed')
+    input_points, input_labels = args.point_coords, args.point_labels
+    
+    get_im  = st.file_uploader('1', label_visibility='collapsed')
+    im_path = None
     ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
-    im_path, verbose = None, False
 
     # Use the selected or uploaded image to get points and labels
     if get_im:
         input_points, input_labels = get_clicked_point(get_im)          
-        masks, inpaintings = inpaint(get_im, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
-                input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size, lang = args.lang)
-
-        cols = st.columns(len(masks))
-
-        for idx, col in enumerate(cols):
-            with col: write(f"Mask#{idx}:"); st.image(masks[idx])
-
-        cols = st.columns(len(masks))
-
-        for idx, col in enumerate(cols):
-            with col: write(f"Inpainting#{idx}:"); st.image(inpaintings[idx])
         
     elif (get_im == None) and (im_path == None): 
         # print("get_im == None")
@@ -54,21 +44,23 @@ def run(args):
 
             input_points, input_labels = get_clicked_point(im_path)          
             
-            masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
-                    input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size, lang = args.lang)
-            
+    if not input_points is None:
+    
+        masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
+                input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size, lang = args.lang)
+        
 
-            cols = st.columns(len(masks))
+        cols = st.columns(len(masks))
 
-            for idx, col in enumerate(cols):
-                with col: write(f"Mask#{idx+1}:"); st.image(masks[idx])
+        for idx, col in enumerate(cols):
+            with col: write(f"Mask#{idx+1}:"); st.image(masks[idx])
 
-            cols = st.columns(len(masks))
+        cols = st.columns(len(masks))
 
-            for idx, col in enumerate(cols):
-                with col: write(f"Inpainting#{idx+1}:"); st.image(inpaintings[idx]) 
-            if   args.lang == "en": st.header("Please rerun streamlit script from the terminal!") 
-            elif args.lang == "ko": st.header("터미널에서 streamlit 스크립트를 다시 실행해 주세요!") 
+        for idx, col in enumerate(cols):
+            with col: write(f"Inpainting#{idx+1}:"); st.image(inpaintings[idx]) 
+        if   args.lang == "en": st.header("Please rerun streamlit script from the terminal!") 
+        elif args.lang == "ko": st.header("터미널에서 streamlit 스크립트를 다시 실행해 주세요!") 
 
 if __name__ == "__main__":
     # Initialize argument parser
