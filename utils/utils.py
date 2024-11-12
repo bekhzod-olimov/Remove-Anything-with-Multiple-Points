@@ -134,13 +134,13 @@ def get_ims_captions(path, n_ims):
 
     return ims, captions
 
-def choose(option, label):
+def choose(option, label, placeholder):
 
     return st_free_text_select(
             label=label,
             options=option,
             index=None,
-            placeholder="선택을 위해 클릭해주세요",
+            placeholder=placeholder,
             disabled=False,
             delay=300,
             label_visibility="visible")

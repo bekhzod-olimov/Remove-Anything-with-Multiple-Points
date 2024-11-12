@@ -16,21 +16,12 @@ def run(args):
 
     assert args.lang in ["en", "ko"], "Please choose English (en) or Korean (ko) language."
 
-    if   args.lang == "en": type1, type2, label, placeholder = "my_image", "existing_image", "Please choose a demo type", "Plese click to choose"
+    if   args.lang == "en": type1, type2, label, placeholder = "my_image", "existing_image", "Please choose a demo type", "Please click to choose"
     elif args.lang == "ko": type1, type2, label, placeholder = "본인 이미지", "리스트에 있는 이미지", "데모 종류를 선택해주세요", "선택을 위해 클릭해주세요"
 
     input_points, demo_types = None, [type1, type2]
-    # assert args.data in model_names, "Please choose appropriate company name!"
     
-    type_name = st_free_text_select(
-        label=label,
-        options=demo_types,
-        index=None,
-        format_func=lambda x: x.lower(),
-        placeholder=placeholder,
-        disabled=False,
-        delay=300,
-        label_visibility="visible")
+    type_name = choose(option = demo_types, label = label, placeholder = placeholder)
 
     if type_name in ["my_image", "본인 이미지"]:
         if   args.lang == "en": im_path_lbl, input_points_lbl,  input_labels_lbl = "Please type image path:", "Please type input points:", "Please type input labels:"
@@ -39,7 +30,7 @@ def run(args):
         im_path       = st.text_input(label = im_path_lbl,      value = None)
         input_points  = st.text_input(label = input_points_lbl, value = None)
         input_labels  = st.text_input(label = input_labels_lbl, value = None)
-        
+
         if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
 
     elif type_name in ["existing_image", "리스트에 있는 이미지"]:
@@ -60,8 +51,9 @@ def run(args):
             # print("get_im == None")
             select_label = "Images List" if args.lang == "en" else "이미지 목록"
             choice_label = "Available Images" if args.lang == "en" else "선택 가능한 이미지 목록"
+            placeholder  = "Please click to choose" if args.lang == "en" else "선택을 위해 클릭해주세요"
             image_select(label=select_label, images=ims_lst, captions=image_captions)
-            choice = choose(option = image_captions, label = choice_label)
+            choice = choose(option = image_captions, label = choice_label, placeholder = placeholder)
             
             if   args.lang == "en": st.header("Please upload an image or choose from the list!") 
             elif args.lang == "ko": st.header("이미지를 선택하거나 업로드 해주세요!") 
