@@ -61,9 +61,22 @@ def show_points(ax, coords: List[List[float]], labels: List[int], size=375):
         ax.scatter(points[:, 0], points[:, 1], color=color, marker='*',
                    s=size, edgecolor='white', linewidth=1.25)
 
+def get_coords(coords): 
+    splitted = coords.split(" ")
+    length   = len(splitted) // 2
+    return np.array([[int(splitted[2*i]), int(splitted[(2*i) + 1])] for i in range(length)])
+
+def get_labels(labels): 
+    splitted = labels.split(" ")
+    return np.array([int(i) for i in splitted])
+
 def parse_coords(string):
+    
+    if not isinstance(string, str): string = str(string)
+    print(ast.literal_eval(str(string)))
+    
     # Use ast.literal_eval to safely evaluate the string as a list of lists
-    return ast.literal_eval(string)
+    return ast.literal_eval(str(string))
 
 def get_clicked_point(img_path):
     # Load the image

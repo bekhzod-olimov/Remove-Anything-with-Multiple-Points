@@ -7,48 +7,71 @@ warnings.filterwarnings('ignore')
 np.random.seed(seed=2024)
 from PIL import Image
 from matplotlib import pyplot as plt
-from utils import get_ims_captions, choose, inpaint, write, get_clicked_point, parse_coords, load_img_to_array
+from utils import get_ims_captions, choose, inpaint, write, get_clicked_point, parse_coords, load_img_to_array, get_coords, get_labels
 from streamlit_image_select import image_select
+from streamlit_free_text_select import st_free_text_select
 
 def run(args):
     # Streamlit UI for image selection
 
     assert args.lang in ["en", "ko"], "Please choose English (en) or Korean (ko) language."
 
-    if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
-    elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
+    if   args.lang == "en": type1, type2, label, placeholder = "my_image", "existing_image", "Please choose a demo type", "Plese click to choose"
+    elif args.lang == "ko": type1, type2, label, placeholder = "본인 이미지", "리스트에 있는 이미지", "데모 종류를 선택해주세요", "선택을 위해 클릭해주세요"
 
-    input_points, input_labels = args.point_coords, args.point_labels
+    input_points, demo_types = None, [type1, type2]
+    # assert args.data in model_names, "Please choose appropriate company name!"
     
-    get_im  = st.file_uploader('1', label_visibility='collapsed')
-    im_path = None
-    ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
+    type_name = st_free_text_select(
+        label=label,
+        options=demo_types,
+        index=None,
+        format_func=lambda x: x.lower(),
+        placeholder=placeholder,
+        disabled=False,
+        delay=300,
+        label_visibility="visible")
 
-    # Use the selected or uploaded image to get points and labels
-    if get_im:
-        input_points, input_labels = get_clicked_point(get_im)          
-        
-    elif (get_im == None) and (im_path == None): 
-        # print("get_im == None")
-        select_label = "Images List" if args.lang == "en" else "이미지 목록"
-        choice_label = "Available Images" if args.lang == "en" else "선택 가능한 이미지 목록"
-        image_select(label=select_label, images=ims_lst, captions=image_captions)
-        choice = choose(option = image_captions, label = choice_label)
-        
-        if   args.lang == "en": st.header("Please upload an image or choose from the list!") 
-        elif args.lang == "ko": st.header("이미지를 선택하거나 업로드 해주세요!") 
-        
-        if choice:  
-            # print("if choice")
-            im_path = ims_lst[int(choice.split("#")[-1])-1]
+    if type_name in ["my_image", "본인 이미지"]:
+        im_path       = st.text_input(label = "Please type image path",   value = None)
+        input_points  = st.text_input(label = "Please type input points", value = None)
+        input_labels  = st.text_input(label = "Please type input labels", value = None)
+        if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
 
-            input_points, input_labels = get_clicked_point(im_path)          
+    elif type_name in ["existing_image", "리스트에 있는 이미지"]:
+        if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
+        elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
+
+        input_points, input_labels = args.point_coords, args.point_labels    
+
+        get_im  = st.file_uploader('1', label_visibility='collapsed')
+        im_path = None
+        ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
+
+        # Use the selected or uploaded image to get points and labels
+        if get_im:
+            input_points, input_labels = get_clicked_point(get_im)          
             
-    if not input_points is None:
-    
+        elif (get_im == None) and (im_path == None): 
+            # print("get_im == None")
+            select_label = "Images List" if args.lang == "en" else "이미지 목록"
+            choice_label = "Available Images" if args.lang == "en" else "선택 가능한 이미지 목록"
+            image_select(label=select_label, images=ims_lst, captions=image_captions)
+            choice = choose(option = image_captions, label = choice_label)
+            
+            if   args.lang == "en": st.header("Please upload an image or choose from the list!") 
+            elif args.lang == "ko": st.header("이미지를 선택하거나 업로드 해주세요!") 
+            
+            if choice:  
+                
+                im_path = ims_lst[int(choice.split("#")[-1])-1]
+                input_points, input_labels = get_clicked_point(im_path)          
+                
+    if (not input_points is None) and (not input_labels is None):
+        im_path = im_path if im_path != None else args.im_path
+
         masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
                 input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size, lang = args.lang)
-        
 
         cols = st.columns(len(masks))
 
@@ -70,8 +93,8 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--root", type=str, default="example/remove-anything", help="Root folder for test images")
     parser.add_argument("-d", "--device", type=str, default="cpu", help="GPU or CPU")
     parser.add_argument("-cp", "--ckpt_path", type=str, default="../backup/pretrained_models/sam_vit_h_4b8939.pth", help="Checkpoint path")
-    parser.add_argument("-pc", "--point_coords", type=parse_coords, nargs='*', help="The coordinate of the point prompt, [coord_W coord_H].")
-    parser.add_argument("-pl", "--point_labels", type=parse_coords, nargs='*', help="The labels of the point prompt, 1 or 0.")
+    parser.add_argument("-pc", "--point_coords", type=parse_coords, nargs='*', default = None, help="The coordinate of the point prompt, [coord_W coord_H].") # [[300, 200] [350, 250]]
+    parser.add_argument("-pl", "--point_labels", type=parse_coords, nargs='*', default = None, help="The labels of the point prompt, 1 or 0.")                # [1, 1]
     parser.add_argument("-dk", "--dilate_kernel_size", type=int, default=None, help="Dilate kernel size. Default: None")
     parser.add_argument("-od", "--output_dir", type=str, default="results", help="Output path to the directory with results.")
     parser.add_argument("-lc", "--lama_config", type=str, default="./lama/configs/prediction/default.yaml", help="The path to the config file of lama model. Default: the config of big-lama")
