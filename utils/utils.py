@@ -133,12 +133,15 @@ def choose(option, label):
             label_visibility="visible")
 
 def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir, lama_config, lama_ckpt, dks = None):
+        st.header("Building SAM model...!") 
+        
         print("Building SAM model...")
 
         # Initialize SAM model using the checkpoint
         sam = sam_model_registry["vit_h"](checkpoint=f"{ckpts_path}").to(device=device)
         predictor = SamPredictor(sam)
         print("The SAM segmentation model is successfully created!\n")
+        st.header("The SAM segmentation model is successfully created!") 
 
         image = np.array(Image.open(im_path).convert("RGB"))
         # image = load_img_to_array(im_path)
@@ -149,6 +152,7 @@ def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir,
         # Get segmentation masks
         masks, _, _ = predictor.predict(point_coords=input_points, point_labels=input_labels, multimask_output=True)
         print("The segmentation masks using SAM are obtained!\n")
+        st.header("The segmentation masks using SAM are obtained!\n")
 
         masks = masks.astype(np.uint8) * 255
 
@@ -157,6 +161,7 @@ def inpaint(im_path, ckpts_path, input_points, input_labels, device, output_dir,
 
         # Save the segmentation masks
         print("Visualizing the segmentation masks...")
+        st.header("Visualizing the segmentation masks...")            
         inpaintings = [inpaint_img_with_lama(image, mask, lama_config, lama_ckpt, device=device) for mask in masks]
 
         return masks, inpaintings

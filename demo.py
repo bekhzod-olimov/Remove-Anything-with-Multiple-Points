@@ -12,15 +12,18 @@ from streamlit_image_select import image_select
 
 def run(args):
     # Streamlit UI for image selection
-    st.header("이미지를 업로드하거나 이미지를 선택해주세요:")
+
+    assert args.lang in ["en", "ko"], "Please choose English (en) or Korean (ko) language."
+
+    if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
+    elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
 
     get_im = st.file_uploader('1', label_visibility='collapsed')
     ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
-    im_path = None
+    im_path, verbose = None, False
 
     # Use the selected or uploaded image to get points and labels
     if get_im:
-        print("get_im")
         input_points, input_labels = get_clicked_point(get_im)          
         masks, inpaintings = inpaint(get_im, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
                 input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size)
@@ -37,8 +40,13 @@ def run(args):
         
     elif (get_im == None) and (im_path == None): 
         # print("get_im == None")
-        image_select(label="이미지 목록", images=ims_lst, captions=image_captions)
-        choice = choose(option = image_captions, label = "선택 가능한 이미지 목록")
+        select_label = "Images List" if args.lang == "en" else "이미지 목록"
+        choice_label = "Available Images" if args.lang == "en" else "선택 가능한 이미지 목록"
+        image_select(label=select_label, images=ims_lst, captions=image_captions)
+        choice = choose(option = image_captions, label = choice_label)
+        
+        if   args.lang == "en": st.header("Please upload an image or choose from the list!") 
+        elif args.lang == "ko": st.header("이미지를 선택하거나 업로드 해주세요!") 
         
         if choice:  
             # print("if choice")
@@ -48,6 +56,7 @@ def run(args):
             
             masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
                     input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size)
+            
 
             cols = st.columns(len(masks))
 
@@ -58,8 +67,8 @@ def run(args):
 
             for idx, col in enumerate(cols):
                 with col: write(f"Inpainting#{idx+1}:"); st.image(inpaintings[idx]) 
-
-    elif (get_im == None) and (im_path == None): st.header("이미지를 업로드 해주세요!") 
+            if   args.lang == "en": st.header("Please rerun streamlit script from the terminal!") 
+            elif args.lang == "ko": st.header("터미널에서 streamlit 스크립트를 다시 실행해 주세요!") 
 
 if __name__ == "__main__":
     # Initialize argument parser
@@ -75,6 +84,7 @@ if __name__ == "__main__":
     parser.add_argument("-od", "--output_dir", type=str, default="results", help="Output path to the directory with results.")
     parser.add_argument("-lc", "--lama_config", type=str, default="./lama/configs/prediction/default.yaml", help="The path to the config file of lama model. Default: the config of big-lama")
     parser.add_argument("-ck", "--lama_ckpt", type=str, default="../backup/pretrained_models/big-lama", help="The path to the lama checkpoint.")
+    parser.add_argument("-ln", "--lang", type=str, default="ko", help="Verbose language")
 
     # Parse the arguments
     args = parser.parse_args()
