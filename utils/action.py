@@ -53,11 +53,11 @@ class Action:
 
     def replace(self):
 
-        self.replaces = [replace_img_with_sd(self.image, mask, self.text_prompt, device=self.device) for mask in self.masks]
+        self.replaces = [(replace_img_with_sd(self.image, mask, self.text_prompt, device=self.device) / 255) for mask in self.masks]
 
     def summarize(self):
 
-        writing = "Replaced#" if self.text_prompt else "Inpainting#"
+        to_show, writing = (self.replaces, "Replaced#") if self.text_prompt else (self.inpaintings, "Inpainting#")
 
         cols = st.columns(len(self.masks))
 
@@ -67,7 +67,7 @@ class Action:
         cols = st.columns(len(self.masks))
 
         for idx, col in enumerate(cols):
-            with col: self.write(f"{writing}{idx+1}:"); st.image(self.inpaintings[idx])
+            with col: self.write(f"{writing}{idx+1}:"); st.image(to_show[idx])
     
     def write(self, text): return st.markdown(f'<h1 style="text-align: center;">{text}</h1>', unsafe_allow_html=True) if isinstance(text, str) else st.markdown(f'<h1 style="font-size:100px; text-align: center; color: red; ">{text}</h1>', unsafe_allow_html=True)
 
