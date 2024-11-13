@@ -6,7 +6,8 @@ warnings.filterwarnings('ignore')
 np.random.seed(seed=2024)
 from PIL import Image
 from matplotlib import pyplot as plt
-from utils import get_ims_captions, choose, inpaint, write, get_clicked_point, parse_coords, load_img_to_array, get_coords, get_labels
+from utils import get_ims_captions, choose, get_clicked_point, parse_coords, get_coords, get_labels
+from utils.action import inpaint, write
 from streamlit_image_select import image_select
 from streamlit_free_text_select import st_free_text_select
 
@@ -76,7 +77,7 @@ def run(args):
             im_path = im_path if im_path != None else args.im_path
 
             masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
-                    input_labels = input_labels, device = args.device, output_dir = args.output_dir, dks = args.dilate_kernel_size, lang = args.lang)
+                    input_labels = input_labels, device = args.device, dks = args.dilate_kernel_size, lang = args.lang)
 
             cols = st.columns(len(masks))
 
