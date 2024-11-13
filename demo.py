@@ -20,55 +20,55 @@ def run(args):
     
     task_name = choose(option = task_options, label = label, placeholder = placeholder)
 
-    if task_name in ["inpaint", "인페인팅"]:
+    if   args.lang == "en": type1, type2, label = "my_image", "existing_image", "Please choose a demo type:"
+    elif args.lang == "ko": type1, type2, label = "본인 이미지", "리스트에 있는 이미지", "데모 종류를 선택해주세요:"
 
-        if   args.lang == "en": type1, type2, label = "my_image", "existing_image", "Please choose a demo type:"
-        elif args.lang == "ko": type1, type2, label = "본인 이미지", "리스트에 있는 이미지", "데모 종류를 선택해주세요:"
+    input_points, demo_types = None, [type1, type2]
+    
+    type_name = choose(option = demo_types, label = label, placeholder = placeholder)
 
-        input_points, demo_types = None, [type1, type2]
-        
-        type_name = choose(option = demo_types, label = label, placeholder = placeholder)
+    if type_name in ["my_image", "본인 이미지"]:
 
-        if type_name in ["my_image", "본인 이미지"]:
+        if   args.lang == "en": im_path_lbl, input_points_lbl,  input_labels_lbl = "Please type image path:", "Please type input points:", "Please type input labels:"
+        elif args.lang == "ko": im_path_lbl, input_points_lbl,  input_labels_lbl = "이미지 경로를 입력해 주세요:", "입력 포인트를 입력해 주세요:", "입력 레이블을 입력해 주세요:"
 
-            if   args.lang == "en": im_path_lbl, input_points_lbl,  input_labels_lbl = "Please type image path:", "Please type input points:", "Please type input labels:"
-            elif args.lang == "ko": im_path_lbl, input_points_lbl,  input_labels_lbl = "이미지 경로를 입력해 주세요:", "입력 포인트를 입력해 주세요:", "입력 레이블을 입력해 주세요:"
+        im_path       = st.text_input(label = im_path_lbl,      value = None)
+        input_points  = st.text_input(label = input_points_lbl, value = None)
+        input_labels  = st.text_input(label = input_labels_lbl, value = None)
 
-            im_path       = st.text_input(label = im_path_lbl,      value = None)
-            input_points  = st.text_input(label = input_points_lbl, value = None)
-            input_labels  = st.text_input(label = input_labels_lbl, value = None)
+        if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
 
-            if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
+    elif type_name in ["existing_image", "리스트에 있는 이미지"]:
 
-        elif type_name in ["existing_image", "리스트에 있는 이미지"]:
+        if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
+        elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
 
-            if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
-            elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
+        input_points, input_labels = args.point_coords, args.point_labels    
 
-            input_points, input_labels = args.point_coords, args.point_labels    
+        get_im  = st.file_uploader('1', label_visibility='collapsed')
+        im_path = None
+        ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
 
-            get_im  = st.file_uploader('1', label_visibility='collapsed')
-            im_path = None
-            ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
-
-            # Use the selected or uploaded image to get points and labels
-            if get_im: input_points, input_labels = get_clicked_point(get_im)          
+        # Use the selected or uploaded image to get points and labels
+        if get_im: input_points, input_labels = get_clicked_point(get_im)          
+            
+        elif (get_im == None) and (im_path == None): 
+            
+            select_label = "Images List" if args.lang == "en" else "이미지 목록"
+            choice_label = "Available Images" if args.lang == "en" else "선택 가능한 이미지 목록"
+            placeholder  = "Please click to choose" if args.lang == "en" else "선택을 위해 클릭해주세요"
+            image_select(label=select_label, images=ims_lst, captions=image_captions)
+            choice = choose(option = image_captions, label = choice_label, placeholder = placeholder)
+            
+            if   args.lang == "en": st.header("Please upload an image or choose from the list!") 
+            elif args.lang == "ko": st.header("이미지를 선택하거나 업로드 해주세요!") 
+            
+            if choice:  
                 
-            elif (get_im == None) and (im_path == None): 
-                
-                select_label = "Images List" if args.lang == "en" else "이미지 목록"
-                choice_label = "Available Images" if args.lang == "en" else "선택 가능한 이미지 목록"
-                placeholder  = "Please click to choose" if args.lang == "en" else "선택을 위해 클릭해주세요"
-                image_select(label=select_label, images=ims_lst, captions=image_captions)
-                choice = choose(option = image_captions, label = choice_label, placeholder = placeholder)
-                
-                if   args.lang == "en": st.header("Please upload an image or choose from the list!") 
-                elif args.lang == "ko": st.header("이미지를 선택하거나 업로드 해주세요!") 
-                
-                if choice:  
-                    
-                    im_path = ims_lst[int(choice.split("#")[-1])-1]
-                    input_points, input_labels = get_clicked_point(im_path)          
+                im_path = ims_lst[int(choice.split("#")[-1])-1]
+                input_points, input_labels = get_clicked_point(im_path)
+
+    if task_name in ["inpaint", "인페인팅"]:                  
                     
         if (not input_points is None) and (not input_labels is None):
             

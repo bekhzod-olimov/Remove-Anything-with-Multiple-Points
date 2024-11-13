@@ -75,4 +75,4 @@ class Action:
 
     def replacing(self):  self.segment(); self.replace()
 
-    def run(self): self.replacing() if self.text_prompt else self.inpainting()
+    def run(self): self.replacing() if self.text_prompt else self.inpainting(); self.summarize()
