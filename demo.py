@@ -4,12 +4,9 @@ import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
 np.random.seed(seed=2024)
-from PIL import Image
-from matplotlib import pyplot as plt
 from utils import get_ims_captions, choose, get_clicked_point, parse_coords, get_coords, get_labels
 from utils.action import Action
 from streamlit_image_select import image_select
-from streamlit_free_text_select import st_free_text_select
 
 def run(args):
     # Streamlit UI for image selection
