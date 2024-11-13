@@ -7,7 +7,7 @@ np.random.seed(seed=2024)
 from PIL import Image
 from matplotlib import pyplot as plt
 from utils import get_ims_captions, choose, get_clicked_point, parse_coords, get_coords, get_labels
-from utils.action import inpaint, write
+from utils.action import Action
 from streamlit_image_select import image_select
 from streamlit_free_text_select import st_free_text_select
 
@@ -74,20 +74,12 @@ def run(args):
                     input_points, input_labels = get_clicked_point(im_path)          
                     
         if (not input_points is None) and (not input_labels is None):
+            
             im_path = im_path if im_path != None else args.im_path
-
-            masks, inpaintings = inpaint(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
-                    input_labels = input_labels, device = args.device, dks = args.dilate_kernel_size, lang = args.lang)
-
-            cols = st.columns(len(masks))
-
-            for idx, col in enumerate(cols):
-                with col: write(f"Mask#{idx+1}:"); st.image(masks[idx])
-
-            cols = st.columns(len(masks))
-
-            for idx, col in enumerate(cols):
-                with col: write(f"Inpainting#{idx+1}:"); st.image(inpaintings[idx]) 
+            
+            Action(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
+                   input_labels = input_labels, device = args.device, dks = args.dilate_kernel_size, lang = args.lang).run()
+ 
             st.header(final_header) 
 
     elif task_name in ["replace", "대체"]:
