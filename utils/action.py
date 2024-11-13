@@ -4,16 +4,18 @@ from segment_anything import sam_model_registry, SamPredictor
 from pathlib import Path
 from lama_inpaint import inpaint_img_with_lama
 from utils import dilate_mask
+from stable_diffusion_inpaint import replace_img_with_sd
 
 st.set_page_config(layout='wide')
 
 class Action:
         
-    def __init__(self, im_path, ckpts_path, input_points, input_labels, device, lama_config, lama_ckpt, lang, dks = None):
+    def __init__(self, im_path, ckpts_path, input_points, input_labels, device, lama_config, lama_ckpt, lang, dks = None, text_prompt = None):
             
         self.im_path, self.ckpts_path, self.input_points, self.input_labels = im_path, ckpts_path, input_points, input_labels
         self.device, self.lama_config, self.lama_ckpt, self.lang, self.dks  = device, lama_config, lama_ckpt, lang, dks
-            
+        self.text_prompt = text_prompt    
+
     def segment(self):
 
         if   self.lang == "en": st.header("Building SAM model...!") 
@@ -49,7 +51,13 @@ class Action:
                  
         self.inpaintings = [inpaint_img_with_lama(self.image, mask, self.lama_config, self.lama_ckpt, device=self.device) for mask in self.masks]
 
+    def replace(self):
+
+        self.replaces = [replace_img_with_sd(self.image, mask, self.text_prompt, device=self.device) for mask in self.masks]
+
     def summarize(self):
+
+        writing = "Replaced#" if self.text_prompt else "Inpainting#"
 
         cols = st.columns(len(self.masks))
 
@@ -59,8 +67,12 @@ class Action:
         cols = st.columns(len(self.masks))
 
         for idx, col in enumerate(cols):
-            with col: self.write(f"Inpainting#{idx+1}:"); st.image(self.inpaintings[idx])
+            with col: self.write(f"{writing}{idx+1}:"); st.image(self.inpaintings[idx])
     
     def write(self, text): return st.markdown(f'<h1 style="text-align: center;">{text}</h1>', unsafe_allow_html=True) if isinstance(text, str) else st.markdown(f'<h1 style="font-size:100px; text-align: center; color: red; ">{text}</h1>', unsafe_allow_html=True)
 
-    def run(self): self.segment(); self.inpaint(); self.summarize()
+    def inpainting(self): self.segment(); self.inpaint()
+
+    def replacing(self):  self.segment(); self.replace()
+
+    def run(self): self.replacing() if self.text_prompt else self.inpainting()
