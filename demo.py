@@ -80,10 +80,11 @@ def run(args):
             st.header(final_header) 
 
     elif task_name in ["replace", "대체"]:
-        st.header("Hey there! I am replacer!")
-        im_path = None
-        im_path = im_path if im_path != None else args.im_path
-        Action(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
+        
+        if (not input_points is None) and (not input_labels is None):
+            
+            im_path = im_path if im_path != None else args.im_path
+            Action(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
                    input_labels = input_labels, device = args.device, dks = args.dilate_kernel_size, lang = args.lang, text_prompt = "beautiful").run()
 
 if __name__ == "__main__":
