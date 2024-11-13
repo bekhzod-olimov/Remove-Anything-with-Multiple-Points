@@ -25,13 +25,10 @@ class Action:
         sam = sam_model_registry["vit_h"](checkpoint=f"{self.ckpts_path}").to(device=self.device)
         predictor = SamPredictor(sam)
         if   self.lang == "en": st.header("The SAM segmentation model is successfully created!") 
-        elif self.lang == "ko": st.header("SAM 세그멘테이션 모델이 성공적으로 생성되었습니다!") 
-
-        self.image = np.array(Image.open(self.im_path).convert("RGB"))
-        # image = load_img_to_array(im_path)
+        elif self.lang == "ko": st.header("SAM 세그멘테이션 모델이 성공적으로 생성되었습니다!")
 
         # Preprocess image for SAM
-        predictor.set_image(self.image)
+        self.get_im(); predictor.set_image(self.image)
 
         # Get segmentation masks
         masks, _, _ = predictor.predict(point_coords=self.input_points, point_labels=self.input_labels, multimask_output=True)
@@ -42,6 +39,8 @@ class Action:
 
         # Dilate masks to avoid unmasked edge effect if the kernel size is specified
         if self.dks: self.masks = [dilate_mask(mask, self.dks) for mask in self.masks]
+
+    def get_im(self): self.image = np.array(Image.open(self.im_path).convert("RGB"))
 
     def inpaint(self):               
 
