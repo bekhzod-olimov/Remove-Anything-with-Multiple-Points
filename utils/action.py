@@ -16,6 +16,8 @@ class Action:
         self.device, self.lama_config, self.lama_ckpt, self.lang, self.dks  = device, lama_config, lama_ckpt, lang, dks
         self.text_prompt = text_prompt    
 
+    def get_im(self): self.image = np.array(Image.open(self.im_path).convert("RGB"))
+    
     def segment(self):
 
         if   self.lang == "en": st.header("Building SAM model...!") 
@@ -40,13 +42,10 @@ class Action:
         # Dilate masks to avoid unmasked edge effect if the kernel size is specified
         if self.dks: self.masks = [dilate_mask(mask, self.dks) for mask in self.masks]
 
-    def get_im(self): self.image = np.array(Image.open(self.im_path).convert("RGB"))
-
-    def inpaint(self):               
-
-        # Save the segmentation masks
         if   self.lang == "en": st.header("Visualizing the segmentation masks...") 
         elif self.lang == "ko": st.header("세그멘테이션 마스크를 시각화하는 중입니다...") 
+
+    def inpaint(self):               
                  
         self.inpaintings = [inpaint_img_with_lama(self.image, mask, self.lama_config, self.lama_ckpt, device=self.device) for mask in self.masks]
 
