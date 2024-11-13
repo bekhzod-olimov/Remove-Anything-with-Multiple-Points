@@ -3,23 +3,23 @@ from PIL import Image
 from segment_anything import sam_model_registry, SamPredictor
 from pathlib import Path
 from lama_inpaint import inpaint_img_with_lama
-from utils import dilate_mask
+from utils import dilate_mask; from tqdm import tqdm
 from stable_diffusion_inpaint import replace_img_with_sd
 
 st.set_page_config(layout='wide')
 
 class Action:
         
-    def __init__(self, im_path, ckpts_path, input_points, input_labels, device, lama_config, lama_ckpt, lang, dks = None, text_prompt = None):
+    def __init__(self, im_path, ckpts_path, input_points, input_labels, device, lama_config, lama_ckpt, lang, dks = None, text_prompt = None, final_header = None):
             
         self.im_path, self.ckpts_path, self.input_points, self.input_labels = im_path, ckpts_path, input_points, input_labels
         self.device, self.lama_config, self.lama_ckpt, self.lang, self.dks  = device, lama_config, lama_ckpt, lang, dks
-        self.text_prompt = text_prompt    
+        self.text_prompt, self.final_header = text_prompt, final_header
 
     def get_im(self): self.image = np.array(Image.open(self.im_path).convert("RGB"))
     
     def segment(self):
-
+         
         if   self.lang == "en": st.header("Building SAM model...!") 
         elif self.lang == "ko": st.header("SAM 모델을 구축하는 중입니다...")     
 
@@ -51,7 +51,7 @@ class Action:
 
     def replace(self):
 
-        self.replaces = [(replace_img_with_sd(self.image, mask, self.text_prompt, device=self.device) / 255) for mask in self.masks]
+        self.replaces = [(replace_img_with_sd(self.image, mask, self.text_prompt, device=self.device) / 255) for mask in tqdm(self.masks)]
 
     def summarize(self):
 
@@ -73,4 +73,4 @@ class Action:
 
     def replacing(self):  self.segment(); self.replace()
 
-    def run(self): self.replacing() if self.text_prompt else self.inpainting(); self.summarize()
+    def run(self): self.replacing() if self.text_prompt else self.inpainting(); self.summarize(); st.header(self.final_header)

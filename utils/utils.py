@@ -126,6 +126,10 @@ def get_ims_captions(path, n_ims):
 
     return ims, captions
 
+def is_prompt_ready(prompt):
+    if isinstance(prompt, str): return True
+    return False
+
 def choose(option, label, placeholder):
 
     return st_free_text_select(
