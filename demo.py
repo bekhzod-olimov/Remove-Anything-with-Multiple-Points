@@ -1,13 +1,9 @@
-import argparse
-import numpy as np
-import streamlit as st
-import warnings
+import warnings, argparse, streamlit as st, numpy as np
 warnings.filterwarnings('ignore')
-np.random.seed(seed=2024)
+np.random.seed(seed = 2024)
 from utils import get_ims_captions, choose, get_clicked_point, parse_coords, get_coords, get_labels
 from utils.action import Action
 from streamlit_image_select import image_select
-from time import sleep
 
 def run(args):
     

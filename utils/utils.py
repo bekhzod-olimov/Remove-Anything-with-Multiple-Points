@@ -1,10 +1,8 @@
-import cv2, ast
-import numpy as np
+import cv2, ast, numpy as np
 from PIL import Image
 from typing import List
 from glob import glob
 from streamlit_free_text_select import st_free_text_select
-import streamlit as st
 
 def load_img_to_array(img_p):
     img = Image.open(img_p)
