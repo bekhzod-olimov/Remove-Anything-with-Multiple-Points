@@ -7,31 +7,21 @@ from streamlit_free_text_select import st_free_text_select
 import streamlit as st
 
 def load_img_to_array(img_p):
-    print(img_p)
     img = Image.open(img_p)
     if img.mode == "RGBA":
         img = img.convert("RGB")
     return np.array(img)
 
-def save_array_to_img(img_arr, img_p):
-    Image.fromarray(img_arr.astype(np.uint8)).save(img_p)
+def save_array_to_img(img_arr, img_p): Image.fromarray(img_arr.astype(np.uint8)).save(img_p)
 
 def dilate_mask(mask, dilate_factor=15):
     mask = mask.astype(np.uint8)
-    mask = cv2.dilate(
-        mask,
-        np.ones((dilate_factor, dilate_factor), np.uint8),
-        iterations=1
-    )
+    mask = cv2.dilate(mask, np.ones((dilate_factor, dilate_factor), np.uint8), iterations=1)
     return mask
 
 def erode_mask(mask, dilate_factor=15):
     mask = mask.astype(np.uint8)
-    mask = cv2.erode(
-        mask,
-        np.ones((dilate_factor, dilate_factor), np.uint8),
-        iterations=1
-    )
+    mask = cv2.erode(mask, np.ones((dilate_factor, dilate_factor), np.uint8), iterations=1)
     return mask
 
 def show_mask(ax, mask: np.ndarray, random_color=False):
@@ -125,10 +115,6 @@ def get_ims_captions(path, n_ims):
     captions = [f"Image #{i+1}" for i in range(len(ims))]
 
     return ims, captions
-
-def is_prompt_ready(prompt):
-    if isinstance(prompt, str): return True
-    return False
 
 def choose(option, label, placeholder):
 

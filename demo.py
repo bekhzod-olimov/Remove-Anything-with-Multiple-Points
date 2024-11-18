@@ -4,7 +4,7 @@ import streamlit as st
 import warnings
 warnings.filterwarnings('ignore')
 np.random.seed(seed=2024)
-from utils import get_ims_captions, choose, get_clicked_point, parse_coords, get_coords, get_labels, is_prompt_ready
+from utils import get_ims_captions, choose, get_clicked_point, parse_coords, get_coords, get_labels
 from utils.action import Action
 from streamlit_image_select import image_select
 from time import sleep
