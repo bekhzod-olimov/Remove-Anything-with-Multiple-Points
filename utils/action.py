@@ -16,8 +16,6 @@ class Action:
         self.device, self.lama_config, self.lama_ckpt, self.lang, self.dks  = device, lama_config, lama_ckpt, lang, dks
         self.text_prompt, self.final_header = text_prompt, final_header
 
-    def get_im(self): self.image = np.array(Image.open(self.im_path).convert("RGB"))
-    
     def segment(self):
          
         if   self.lang == "en": st.header("Building SAM model...!") 
@@ -43,15 +41,9 @@ class Action:
         if self.dks: self.masks = [dilate_mask(mask, self.dks) for mask in self.masks]
 
         if   self.lang == "en": st.header("Visualizing the segmentation masks...") 
-        elif self.lang == "ko": st.header("세그멘테이션 마스크를 시각화하는 중입니다...") 
-
-    def inpaint(self):               
-                 
-        self.inpaintings = [inpaint_img_with_lama(self.image, mask, self.lama_config, self.lama_ckpt, device=self.device) for mask in self.masks]
-
-    def replace(self):
-
-        self.replaces = [(replace_img_with_sd(self.image, mask, self.text_prompt, device=self.device) / 255) for mask in tqdm(self.masks)]
+        elif self.lang == "ko": st.header("세그멘테이션 마스크를 시각화하는 중입니다...")
+    
+    def get_im(self): self.image = np.array(Image.open(self.im_path).convert("RGB"))    
 
     def summarize(self):
 
@@ -66,8 +58,12 @@ class Action:
 
         for idx, col in enumerate(cols):
             with col: self.write(f"{writing}{idx+1}:"); st.image(to_show[idx])
-    
+
     def write(self, text): return st.markdown(f'<h1 style="text-align: center;">{text}</h1>', unsafe_allow_html=True) if isinstance(text, str) else st.markdown(f'<h1 style="font-size:100px; text-align: center; color: red; ">{text}</h1>', unsafe_allow_html=True)
+    
+    def inpaint(self): self.inpaintings = [inpaint_img_with_lama(self.image, mask, self.lama_config, self.lama_ckpt, device=self.device) for mask in self.masks]
+
+    def replace(self): self.replaces = [(replace_img_with_sd(self.image, mask, self.text_prompt, device=self.device) / 255) for mask in tqdm(self.masks)]
 
     def inpainting(self): self.segment(); self.inpaint()
 
