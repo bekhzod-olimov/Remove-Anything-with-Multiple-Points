@@ -22,8 +22,6 @@ def run(args):
         elif args.lang == "ko": type1, type2, label = "본인 이미지", "리스트에 있는 이미지", "데모 종류를 선택해주세요:"
 
         text_prompt, input_points, demo_types = None, None, [type1, type2]
-
-        text_prompt   = st.text_input(label = text_prompt_label, value = None)
         
         type_name = choose(option = demo_types, label = label, placeholder = placeholder)
         
@@ -32,9 +30,9 @@ def run(args):
             if   args.lang == "en": im_path_lbl, input_points_lbl,  input_labels_lbl = "Please type image path:", "Please type input points:", "Please type input labels:"
             elif args.lang == "ko": im_path_lbl, input_points_lbl,  input_labels_lbl = "이미지 경로를 입력해 주세요:", "입력 포인트를 입력해 주세요:", "입력 레이블을 입력해 주세요:"
 
-            im_path       = st.text_input(label = im_path_lbl,      value = None)
-            input_points  = st.text_input(label = input_points_lbl, value = None)
-            input_labels  = st.text_input(label = input_labels_lbl, value = None)
+            im_path       = st.text_input(label = im_path_lbl,       value = None)
+            input_points  = st.text_input(label = input_points_lbl,  value = None)
+            input_labels  = st.text_input(label = input_labels_lbl,  value = None)
             text_prompt   = st.text_input(label = text_prompt_label, value = None)
 
             if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
