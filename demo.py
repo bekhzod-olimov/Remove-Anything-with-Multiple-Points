@@ -24,8 +24,9 @@ def run(args):
         text_prompt, input_points, demo_types = None, None, [type1, type2]
         
         type_name = choose(option = demo_types, label = label, placeholder = placeholder)
-        
+    
         if type_name == type1:
+            
 
             if   args.lang == "en": im_path_lbl, input_points_lbl,  input_labels_lbl = "Please type image path:", "Please type input points:", "Please type input labels:"
             elif args.lang == "ko": im_path_lbl, input_points_lbl,  input_labels_lbl = "이미지 경로를 입력해 주세요:", "입력 포인트를 입력해 주세요:", "입력 레이블을 입력해 주세요:"
@@ -33,20 +34,21 @@ def run(args):
             im_path       = st.text_input(label = im_path_lbl,       value = None)
             input_points  = st.text_input(label = input_points_lbl,  value = None)
             input_labels  = st.text_input(label = input_labels_lbl,  value = None)
-            text_prompt   = st.text_input(label = text_prompt_label, value = None)
+
+            if task_name == task1: text_prompt   = st.text_input(label = text_prompt_label, value = None)
 
             if (not input_labels is None) and (not input_points is None): input_points, input_labels = get_coords(input_points), get_labels(input_labels)      
 
-        elif type_name == type2:
+        elif type_name == type2 and task_name == task2:
 
             if   args.lang == "en": st.header("Please upload an image or choose from the list:") 
             elif args.lang == "ko": st.header("이미지를 업로드하거나 이미지를 선택해주세요:") 
 
             input_points, input_labels = args.point_coords, args.point_labels    
 
-            get_im  = st.file_uploader('1', label_visibility='collapsed')
+            get_im  = st.file_uploader("1", label_visibility = "collapsed")
             im_path = None
-            ims_lst, image_captions = get_ims_captions(path=args.root, n_ims=7)   
+            ims_lst, image_captions = get_ims_captions(path = args.root, n_ims = 7)   
 
             # Use the selected or uploaded image to get points and labels
             if get_im: input_points, input_labels = get_clicked_point(get_im)          
@@ -61,15 +63,11 @@ def run(args):
                 if   args.lang == "en": st.header("Please upload an image or choose from the list!") 
                 elif args.lang == "ko": st.header("이미지를 선택하거나 업로드 해주세요!")             
                 
-                if choice:  
-                    
-                    im_path = ims_lst[int(choice.split("#")[-1])-1]
-                    input_points, input_labels = get_clicked_point(im_path)
+                if choice:  input_points, input_labels = get_clicked_point(ims_lst[int(choice.split("#")[-1])-1])
         
-        if text_prompt == None: 
-            st.warning("Please enter a prompt to continue.")
+        if text_prompt == None and task_name == task1: st.warning("Please enter a prompt to continue.")
                                   
-        if (not input_points is None) and (not input_labels is None) and (not text_prompt is None):    
+        if ((not input_points is None) and (not input_labels is None) and (not text_prompt is None)) or ((task_name == task2) and (not input_points is None) and (not input_labels is None)):    
                      
             Action(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
                 input_labels = input_labels, device = args.device, dks = args.dilate_kernel_size, lang = args.lang, text_prompt = text_prompt, final_header = final_header).run()           
