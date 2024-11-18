@@ -79,9 +79,7 @@ def run(args):
                      
             Action(im_path, ckpts_path = args.ckpt_path, input_points = input_points, lama_config = args.lama_config, lama_ckpt = args.lama_ckpt,
                 input_labels = input_labels, device = args.device, dks = args.dilate_kernel_size, lang = args.lang, text_prompt = text_prompt, final_header = final_header).run()           
-                        
-
-        
+                                
 
 if __name__ == "__main__":
     
